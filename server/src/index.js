@@ -112,5 +112,3 @@ app.patch("/api/checks", async (req, res) => {
 });
 
 app.listen(80, () => console.log("server at 80"));
-
-module.exports = app;
