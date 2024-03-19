@@ -1,175 +1,130 @@
-import React, { useEffect, useRef, useState} from 'react'
-import Head from './component/Head'
-import axios, { formToJSON } from 'axios'
-import Body from './component/Body'
-import './css/body.css'
+import React, { useEffect, useRef, useState } from "react";
+import Head from "./component/Head";
+import axios, { formToJSON } from "axios";
+import Body from "./component/Body";
+import "./css/body.css";
 
-
-
-export const todoContext=React.createContext()
+export const todoContext = React.createContext();
 
 function App() {
-  const [todolist, settodolist] = useState()
-  const [todo, settodo] = useState('')
-  
+  const Url = process.env.REACT_APP_URL;
+  console.log(Url);
+  const [todolist, settodolist] = useState();
+  const [todo, settodo] = useState("");
 
-
-
-  const inputRef = useRef(null)
-  const [ch, setch] = useState([{checked:false}])
-  const fn1=async()=>{
+  const inputRef = useRef(null);
+  const [ch, setch] = useState([{ checked: false }]);
+  const fn1 = async () => {
     try {
-      const g=await axios.get('http://localhost/api/checks')
-    setch(g.data)
-    console.log(ch[0].checked)
+      const g = await axios.get(`${Url}/checks`);
+      setch(g.data);
+      console.log(ch[0].checked);
     } catch (error) {
-      console.log(error)
+      console.log(error);
     }
-    
-  }
+  };
 
-    const foc=()=>{
-      const element=inputRef.current.getElementsByTagName('input')
-      
-      element[1].focus()
-      
-      
-    }
+  const foc = () => {
+    const element = inputRef.current.getElementsByTagName("input");
 
-    const chec= async (id,todo)=>{
-      foc()
-      const element=inputRef.current.getElementsByTagName('input')
-      
-      
-      console.log(element.length)
-      if (element[id+2].checked===true){
-        
-        
-        
-       
-        try {
-                
-            
-         
-         const a= await axios.patch(`http://localhost/todos/${todo._id}`,{
-              "checked":true,
-              "color":"red",
-              "decoration":"line-through"
+    element[1].focus();
+  };
 
-          })
+  const chec = async (id, todo) => {
+    foc();
+    const element = inputRef.current.getElementsByTagName("input");
 
-         console.log('hello')
-          
-          fetch1()
-          foc()
-    
-      
-      
+    console.log(element.length);
+    if (element[id + 2].checked === true) {
+      try {
+        const a = await axios.patch(`${Url}/todos/${todo._id}`, {
+          checked: true,
+          color: "red",
+          decoration: "line-through",
+        });
 
+        console.log("hello");
+
+        fetch1();
+        foc();
       } catch (error) {
-          console.log(error)
+        console.log(error);
       }
-      var count=0
-      for (let index = 0; index < element.length-2; index++) {
-        console.log(element[2+index])
-        if(element[2+index].checked===true){
-          count+=1
-          console.log(count)
-          console.log(element.length-2)
+      var count = 0;
+      for (let index = 0; index < element.length - 2; index++) {
+        console.log(element[2 + index]);
+        if (element[2 + index].checked === true) {
+          count += 1;
+          console.log(count);
+          console.log(element.length - 2);
         }
-        if(count===element.length-3){
+        if (count === element.length - 3) {
           try {
-            await axios.patch('http://localhost/api/checks',{
-              "checked":true
-            })
-          
-          console.log(ch[0].checked)
+            await axios.patch(`${Url}/api/checks`, {
+              checked: true,
+            });
+
+            console.log(ch[0].checked);
           } catch (error) {
-            console.log(error)
+            console.log(error);
           }
-          fn1()
+          fn1();
         }
-        
       }
+    } else {
+      // element1[id].style.color='green'
+      // element1[id].style.textDecoration='none'
+      try {
+        const a = await axios.patch(`${Url}/todos/${todo._id}`, {
+          checked: false,
+          color: "green",
+          decoration: "none",
+        });
 
-      }
-      else{
-        
-        
-        // element1[id].style.color='green'
-        // element1[id].style.textDecoration='none'
-        try {
-                
-            
-         
-          const a= await axios.patch(`http://localhost/todos/${todo._id}`,{
-              "checked":false,
-              "color":"green",
-              "decoration":"none"
-          })
-          
-          console.log('hi')
-          
-          fetch1()
-          foc()
-    
-      
-      
+        console.log("hi");
 
+        fetch1();
+        foc();
       } catch (error) {
-          console.log(error)
+        console.log(error);
       }
 
       try {
-        await axios.patch('http://localhost/api/checks',{
-          "checked":false
-        })
-      
-      console.log(ch[0].checked)
-      } catch (error) {
-        console.log(error)
-      }
-      fn1()
-      }
-    }
-    
-    
+        await axios.patch(`${Url}/api/checks`, {
+          checked: false,
+        });
 
-
-    const fetch1= async ()=>{
-      try {
-        const get=await axios.get('http://localhost/todos')
-        
-        
-        
-        settodolist(get.data)
+        console.log(ch[0].checked);
       } catch (error) {
-        console.log(error)
+        console.log(error);
       }
-      
+      fn1();
     }
-    useEffect(() => {
-      fetch1()
-      
-    }, [])
-  
-    
+  };
+
+  const fetch1 = async () => {
+    try {
+      const get = await axios.get(`${Url}/todos`);
+
+      settodolist(get.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+  useEffect(() => {
+    fetch1();
+  }, []);
+
   return (
-    <div className=' ' ref={inputRef}>
-     
-     <todoContext.Provider value={{fetch1,foc,settodolist,settodo,todo,fn1,ch}}>
-          <Head todo={todo} settodo={settodo}/>
-          <Body todolist={todolist}  chec={chec} />
-     </todoContext.Provider>
-
-     
-      
-    
-     
-      
-      
+    <div className=" " ref={inputRef}>
+      <todoContext.Provider
+        value={{ fetch1, foc, settodolist, settodo, todo, fn1, ch }}
+      >
+        <Head todo={todo} settodo={settodo} />
+        <Body todolist={todolist} chec={chec} />
+      </todoContext.Provider>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
